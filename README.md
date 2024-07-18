@@ -1,8 +1,10 @@
 
 # Smart Readme
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ## Description
-A professional Readme generator for projects
+A project for readme generator for your projects
 
 ## Table of Contents
 - [Installation](#installation)
@@ -11,21 +13,28 @@ A professional Readme generator for projects
 - [Contributing](#contributing)
 - [Tests](#tests)
 - [Questions](#questions)
+- [Screenshots](#screenshots)
 
 ## Installation
-Make sure you have node installed and then run node index.js to start the application
+npm install inquirer
 
 ## Usage
-Enter details for your Readme File 
+node index.js
 
 ## License
-This project is licensed under the MIT license.
+This project is licensed under the [MIT](https://opensource.org/licenses/MIT) license.
 
 ## Contributing
-Zain Ul Abid
+zain
 
 ## Tests
-None
+no test
 
 ## Questions
-For any questions or feedback, please contact me at zainulbajwa@outlook.com or visit my GitHub profile at [zainabid333](github.com/zainabid333).
+For any questions or feedback, please contact me at zainulbajwa@outlook.com or visit my GitHub profile at [zainabid333](https://github.com/zainabid333).
+
+## Screenshots
+
+![Screenshot 1]()
+
+
