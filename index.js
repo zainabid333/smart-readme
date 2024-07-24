@@ -1,6 +1,9 @@
+
 const fs = require('fs').promises;
 const inquirer = require('inquirer');
 const path = require('path');
+
+
 
 // License Badge selection for readme files
 
@@ -33,9 +36,15 @@ async function validateDirectory(dir) {
         await fs.access(dir);
         return true;
     } catch {
-        return 'Directory does not exist. It will be created.';
+        try {
+            await fs.mkdir(dir, { recursive: true });
+            return 'Directory created successfully';
+        } catch (error) {
+            return `Unable to create directory: ${error.message}`;
+        }
     }
 }
+// function to generate the readme file 
 
 // Getting project information for Readme files
 
@@ -107,40 +116,57 @@ async function getProjectInfo() {
             type: 'input',
             name: 'outputDir',
             message: 'Where would you like to save the README.md file? (Provide path or press enter for current directory)',
-            default: process.cwd(),
-            validate: validateDirectory
+            default: path.join(process.cwd(), 'output'),
+            validate: async (input) => {
+                const exists = await validateDirectory(input)
+                return exists === true || exists
+            }
         }
     ]);
 }
 
+//function to get screenshots
 
 async function getScreenshots() {
+    //getting screenshots for readme files
     const screenshots = [];
-    let addMore = true;
-
-    while (addMore) {
-        const { screenshot, more } = await inquirer.prompt([
-            {
-                type: 'input',
-                name: 'screenshot',
-                message: 'Please provide the path to a screenshot (relative to project root):'
-            },
-            {
-                type: 'confirm',
-                name: 'more',
-                message: 'Would you like to add another screenshot?',
-                default: false
-            }
-        ]);
-
-        screenshots.push(screenshot);
-        addMore = more;
-
+    //asking user if they want to add screenshots
+    const { wantScreenshot } = await inquirer.prompt([
+        {
+            type: 'confirm',
+            name: 'wantScreenshot',
+            message: 'Would you like to add screenshot to your README?',
+            default: false
+        }
+    ]);
+    //getting screenshot 
+    if (wantScreenshot) {
+        let addMore = true;
+        while (addMore) {
+            const { screenshot, more } = await inquirer.prompt([
+                {
+                    type: 'input',
+                    name: 'screenshot',
+                    message: 'Please provide the path to a screenshot (relative to project root):'
+                },
+                {
+                    type: 'confirm',
+                    name: 'more',
+                    message: 'Would you like to add another screenshot?',
+                    default: false
+                }
+            ]);
+            screenshots.push(screenshot);
+            addMore = more;
+        }
     }
-
-    return screenshots;
-
+    else {
+        screenshots.push('No screenshots provided');
+    }
+    return screenshots
 }
+
+//generating readme file from user input
 
 function generateReadme(info, screenshots) {
     const licenseBadge = licenseInfo[info.license].badge;
@@ -153,8 +179,9 @@ function generateReadme(info, screenshots) {
         screenshots.forEach((screenshot, index) => {
             screenshotSection += `![Screenshot ${index + 1}](${screenshot})\n\n`;
         });
+    } else {
+        scre
     }
-
     return `
 # ${info.title}
 
@@ -194,18 +221,22 @@ ${screenshotSection}
 `;
 }
 
+//main function to run the whole program
+
 async function main() {
     try {
         const info = await getProjectInfo();
         const screenshots = await getScreenshots();
         const readme = generateReadme(info, screenshots);
         await fs.mkdir(info.outputDir, { recursive: true });
-        const outputPath = path.join(info.outputDir, 'README.md');
+        const fileName = `README_${info.title.replace(/\s+/g, '_').toLowerCase()}.md`
+        const outputPath = path.join(info.outputDir, fileName);
         await fs.writeFile(outputPath, readme);
-        console.log(`Successfully created README.md in ${outputPath}`);
+        console.log(`Successfully created ${fileName} in ${info.outputPath}`);
     } catch (error) {
         console.error('An error occurred:', error.message);
     }
 }
 
+//calling main function
 main();
